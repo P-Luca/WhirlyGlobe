@@ -26,6 +26,7 @@
 @property (nonatomic) NSString *textField;
 /// @brief the biggest we'll let the text get (Note: Is this font or what?)
 @property (nonatomic) double textMaxSize;
+@property (nonatomic) NSString *iconName;
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
 

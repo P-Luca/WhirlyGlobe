@@ -20,6 +20,8 @@
 
 #import "MapboxVectorStyleSymbol.h"
 #import "MaplyScreenLabel.h"
+#import "MaplyIconManager.h"
+
 
 @implementation MapboxVectorSymbolLayout
 
@@ -29,7 +31,12 @@
     if (!self)
         return nil;
     
+    _iconName = [styleSet stringValue:@"icon-image" dict:styleEntry defVal:nil];
     _textField = [styleSet stringValue:@"text-field" dict:styleEntry defVal:nil];
+    if (_textField != nil) {
+        _textField = [_textField substringWithRange: NSMakeRange(1, [_textField length] - 2)];
+    }
+
     _textMaxSize = [styleSet doubleValue:@"text-max-size" dict:styleEntry defVal:128.0];
     // Note: Missing a lot of these
     
@@ -109,6 +116,8 @@
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC
 {
+    bool isRetina = [UIScreen mainScreen].scale > 1.0;
+
     NSMutableArray *compObjs = [NSMutableArray array];
     
     NSDictionary *desc = symbolDesc;
@@ -130,13 +139,49 @@
     }
     
     NSMutableArray *labels = [NSMutableArray array];
+    NSMutableArray *markers = [NSMutableArray array];
+
     for (MaplyVectorObject *vecObj in vecObjs)
     {
+        MaplyScreenMarker *marker = nil;
+        if (_layout.iconName != nil) {
+            marker = [[MaplyScreenMarker alloc] init];
+            NSString *markerName = _layout.iconName;
+            marker.image =  [MaplyIconManager iconForName:markerName
+                                                     size:CGSizeMake(30,30)
+                                                    color:[UIColor clearColor]
+                                              circleColor:[UIColor clearColor]
+                                               strokeSize:2.0
+                                              strokeColor:[UIColor clearColor]];
+            if ([marker.image isKindOfClass:[NSNull class]])
+                marker.image = nil;
+            
+            if (marker.image) {
+                marker.loc = [vecObj center];
+                marker.layoutImportance = MAXFLOAT;
+                if (marker.image)
+                {
+                    marker.size = ((UIImage *)marker.image).size;
+                    // The markers will be scaled up on a retina display, so compensate
+                    if (isRetina)
+                        marker.size = CGSizeMake(marker.size.width/2.0, marker.size.height/2.0);
+                } else
+                    marker.size = CGSizeMake(30,30);
+                [markers addObject:marker];
+            }
+        }
+        
         // Note: Cheating
         MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
         label.loc = [vecObj center];
-        label.text = vecObj.attributes[@"name"];
+        NSString *nameAttribute = (_layout.textField != nil) ? _layout.textField : @"name";
+        label.text = vecObj.attributes[nameAttribute];
+        if(label.text == nil)
+            label.text = vecObj.attributes[@"name"];
         label.layoutImportance = _layout.textMaxSize;
+        if (marker != nil) {
+            label.offset = CGPointMake(marker.size.width/3, marker.size.height/3*-1);
+        }
         if (label.text)
             [labels addObject:label];
         // Note: Tossing labels without text
@@ -145,6 +190,10 @@
     MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:desc mode:MaplyThreadCurrent];
     if (compObjs)
         [compObjs addObject:compObj];
+
+    MaplyComponentObject *markerObj = [viewC addScreenMarkers:markers desc:desc mode:MaplyThreadCurrent];
+    if (markerObj)
+        [compObjs addObject:markerObj];
     
     return compObjs;
 }
