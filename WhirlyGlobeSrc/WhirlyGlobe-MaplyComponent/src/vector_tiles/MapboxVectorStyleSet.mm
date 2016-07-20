@@ -87,7 +87,9 @@
     NSMutableArray *passedLayers = [NSMutableArray array];
     for (MaplyMapboxVectorStyleLayer *layer in layersToRun)
     {
-        if (!layer.filter || [layer.filter testFeature:attributes tile:tileID viewC:viewC])
+        if ((!layer.filter || [layer.filter testFeature:attributes tile:tileID viewC:viewC])
+            && (layer.maxzoom <= 0 || tileID.level <= layer.maxzoom)
+            && (layer.minzoom <= 0 || tileID.level >= layer.minzoom))
             [passedLayers addObject:layer];
     }
     
