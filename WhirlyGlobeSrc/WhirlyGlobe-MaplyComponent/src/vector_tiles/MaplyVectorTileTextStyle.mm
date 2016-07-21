@@ -21,20 +21,6 @@
 #import "MaplyVectorTileTextStyle.h"
 #import "MaplyScreenLabel.h"
 
-typedef enum {
-  TextPlacementPoint,
-  TextPlacementLine,
-  TextPlacementVertex,
-  TextPlacementInterior
-} TextSymbolizerPlacement;
-
-typedef enum {
-    TextTransformNone,
-    TextTransformUppercase,
-    TextTransformLowercase,
-    TextTransformCapitalize
-} TextSymbolizerTextTransform;
-
 @interface MaplyVectorTileSubStyleText : NSObject
 {
 @public

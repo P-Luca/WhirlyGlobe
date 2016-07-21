@@ -30,6 +30,27 @@
     self = [super init];
     if (!self)
         return nil;
+     //"symbol-placement": "line"
+     //"text-transform": "uppercase",
+    _placement = TextPlacementPoint;
+    NSString *placement = [styleSet stringValue:@"symbol-placement" dict:styleEntry defVal:nil];
+    if([placement isEqualToString:@"line"])
+        _placement = TextPlacementLine;
+    else if([placement isEqualToString:@"point"])
+        _placement = TextPlacementPoint;
+    else if([placement isEqualToString:@"interior"])
+        _placement = TextPlacementInterior;
+    else if([placement isEqualToString:@"vertex"])
+        _placement = TextPlacementVertex;
+    
+    _textTransform = TextTransformNone;
+    NSString *transform = [styleSet stringValue:@"text-transform" dict:styleEntry defVal:nil];
+    if([transform isEqualToString:@"uppercase"])
+        _textTransform = TextTransformUppercase;
+    else if([transform isEqualToString:@"lowercase"])
+        _textTransform = TextTransformLowercase;
+    else if([transform isEqualToString:@"capitalize"])
+        _textTransform = TextTransformCapitalize;
     
     _iconName = [styleSet stringValue:@"icon-image" dict:styleEntry defVal:nil];
     _textField = [styleSet stringValue:@"text-field" dict:styleEntry defVal:nil];
@@ -180,10 +201,62 @@
             label.text = vecObj.attributes[@"name"];
         label.layoutImportance = _layout.textMaxSize;
         if (marker != nil) {
-            label.offset = CGPointMake(marker.size.width/3, marker.size.height/3*-1);
+            label.offset = CGPointMake(marker.size.width/3, marker.size.height/2*-1);
         }
+        label.layoutPlacement = kMaplyLayoutCenter | kMaplyLayoutRight | kMaplyLayoutLeft | kMaplyLayoutAbove | kMaplyLayoutBelow;
         if (label.text)
-            [labels addObject:label];
+        {
+            switch (_layout.textTransform)
+            {
+                case TextTransformCapitalize:
+                    label.text = [label.text capitalizedString];
+                    break;
+                case TextTransformLowercase:
+                    label.text = [label.text lowercaseString];
+                    break;
+                case TextTransformUppercase:
+                    label.text = [label.text uppercaseString];
+                    break;
+                default:
+                    break;
+            }
+            
+            if(_layout.placement == TextPlacementPoint ||
+               _layout.placement == TextPlacementInterior)
+            {
+                MaplyCoordinate center = [vecObj center];
+                label.loc = center;
+            } else if (_layout.placement == TextPlacementLine)
+            {
+                MaplyCoordinate middle;
+                double rot;
+                if ([vecObj linearMiddle:&middle rot:&rot displayCoordSys:viewC.coordSystem])
+                {
+                    //TODO: text-max-char-angle-delta
+                    //TODO: rotation calculation is not ideal, it is between 2 points, but it needs to be avergared over a longer distance
+                    label.loc = middle;
+                    label.layoutPlacement = kMaplyLayoutCenter;
+                    label.rotation = -1 * rot+M_PI/2.0;
+                    if(label.rotation > M_PI_2 || label.rotation < -M_PI_2) {
+                        label.rotation += M_PI;
+                    }
+                    
+                    label.keepUpright = true;
+                } else {
+                    label = nil;
+                }
+            } else if(_layout.placement == TextPlacementVertex)
+            {
+                MaplyCoordinate vertex;
+                if([vecObj middleCoordinate:&vertex]) {
+                    label.loc = vertex;
+                } else {
+                    label = nil;
+                }
+            }
+            if (label)
+                [labels addObject:label];
+        }
         // Note: Tossing labels without text
     }
     

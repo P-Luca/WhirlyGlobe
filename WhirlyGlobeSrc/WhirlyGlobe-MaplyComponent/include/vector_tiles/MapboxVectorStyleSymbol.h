@@ -19,6 +19,7 @@
  */
 
 #import "MapboxVectorStyleSet.h"
+#import "MaplyVectorTileTextStyle.h"
 
 @interface MapboxVectorSymbolLayout : NSObject
 
@@ -27,6 +28,8 @@
 /// @brief the biggest we'll let the text get (Note: Is this font or what?)
 @property (nonatomic) double textMaxSize;
 @property (nonatomic) NSString *iconName;
+@property (nonatomic) TextSymbolizerPlacement placement;
+@property (nonatomic) TextSymbolizerTextTransform textTransform;
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
 
