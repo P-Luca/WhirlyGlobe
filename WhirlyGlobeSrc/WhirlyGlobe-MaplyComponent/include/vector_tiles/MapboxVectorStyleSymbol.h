@@ -39,6 +39,7 @@
 
 @property (nonatomic) UIColor *textColor;
 @property (nonatomic) UIColor *textHaloColor;
+@property (nonatomic) double textHaloWidth;
 
 @property (nonatomic) double textSize;
 @property (nonatomic) MaplyVectorFunctionStops *textSizeFunc;

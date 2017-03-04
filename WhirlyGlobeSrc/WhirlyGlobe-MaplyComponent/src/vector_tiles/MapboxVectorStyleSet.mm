@@ -145,6 +145,21 @@
     return defVal;
 }
 
+- (BOOL)boolValue:(NSString *)name dict:(NSDictionary *)dict defVal:(BOOL)defVal
+{
+    id thing = dict[name];
+    if (!thing)
+        return defVal;
+    
+    thing = [self constantSubstitution:thing forField:name];
+    
+    if ([thing respondsToSelector:@selector(boolValue)])
+        return [thing boolValue];
+    
+    NSLog(@"Expected boolean for %@ but got something else",name);
+    return defVal;
+}
+
 - (double)doubleValue:(id)thing defVal:(double)defVal
 {
     thing = [self constantSubstitution:thing forField:nil];
@@ -638,6 +653,9 @@
                     NSLog(@"MapboxVectorFilter: Found numeric comparison that doesn't use numbers.");
                 }
             }
+        }
+        else {
+            ret = NO;
         }
     }
     

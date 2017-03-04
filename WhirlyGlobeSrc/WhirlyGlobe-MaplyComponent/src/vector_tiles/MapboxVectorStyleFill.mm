@@ -68,6 +68,7 @@
         NSLog(@"Ignoring fill layout");
     }
     
+    BOOL selectable = [styleSet boolValue:@"interactive" dict:styleEntry defVal:NO];
     _paint = [[MapboxVectorFillPaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
     if (!_paint)
     {
@@ -82,7 +83,7 @@
                        kMaplyDrawPriority: @(self.drawPriority),
                        kMaplyVecCentered: @(true),
                        kMaplyColor: [styleSet color:_paint.color withOpacity:_paint.opacity],
-                       kMaplySelectable: @(false),
+                       kMaplySelectable: @(selectable),
                        kMaplyEnable: @(NO)
                       }];
     }
@@ -94,7 +95,7 @@
                       kMaplyDrawPriority: @(self.drawPriority+1),
                       kMaplyVecCentered: @(true),
                       kMaplyColor: [styleSet color:_paint.outlineColor withOpacity:_paint.opacity],
-                      kMaplySelectable: @(false),
+                      kMaplySelectable: @(selectable),
                       kMaplyEnable: @(NO)
                       }];
     }
@@ -112,6 +113,7 @@
         NSMutableArray *tessVecObjs = [NSMutableArray array];
         for (MaplyVectorObject *vecObj in vecObjs)
         {
+            NSString *layerName = vecObj.attributes[@"layer_name"];
             MaplyVectorObject *tessVecObj = [vecObj tesselate];
             if (tessVecObj)
                 [tessVecObjs addObject:tessVecObj];

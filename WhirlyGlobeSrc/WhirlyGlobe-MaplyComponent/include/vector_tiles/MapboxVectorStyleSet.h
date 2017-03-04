@@ -61,6 +61,8 @@
 /// @details We'll parse the style JSON passed in and return nil on failure.
 - (id)initWithJSON:(NSData *)styleJSON viewC:(MaplyBaseViewController *)viewC;
 
+- (BOOL)boolValue:(NSString *)name dict:(NSDictionary *)dict defVal:(BOOL)defVal;
+
 /// @brief Return an integer value for the given name, taking the constants into account.
 - (int)intValue:(NSString *)name dict:(NSDictionary *)dict defVal:(int)defVal;
 

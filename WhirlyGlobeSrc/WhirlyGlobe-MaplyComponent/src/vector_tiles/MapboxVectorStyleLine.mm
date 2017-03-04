@@ -131,6 +131,7 @@ static unsigned int NextPowOf2(unsigned int val)
     
     _layout = [[MapboxVectorLineLayout alloc] initWithStyleEntry:styleEntry[@"layout"] styleSet:styleSet viewC:viewC];
     _paint = [[MapboxVectorLinePaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
+    BOOL selectable = [styleSet boolValue:@"interactive" dict:styleEntry defVal:NO];
     
     if (!_paint)
     {
@@ -174,7 +175,7 @@ static unsigned int NextPowOf2(unsigned int val)
                       kMaplyDrawPriority: @(self.drawPriority),
                       kMaplyFade: @0.0,
                       kMaplyVecCentered: @YES,
-                      kMaplySelectable: @NO,
+                      kMaplySelectable: @(selectable),
                       kMaplyEnable: @NO
                       }];
 
@@ -186,7 +187,7 @@ static unsigned int NextPowOf2(unsigned int val)
                   kMaplyDrawPriority: @(self.drawPriority),
                   kMaplyFade: @0.0,
                   kMaplyVecCentered: @YES,
-                  kMaplySelectable: @NO,
+                  kMaplySelectable: @(selectable),
                   kMaplyEnable: @NO
                   }];
     }
@@ -198,7 +199,10 @@ static unsigned int NextPowOf2(unsigned int val)
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID  viewC:(MaplyBaseViewController *)viewC
 {
     NSMutableArray *compObjs = [NSMutableArray array];
-    
+//    for (MaplyVectorObject *vecObj in vecObjs)
+//    {
+//        vecObj.selectable = YES;
+//    }
     NSDictionary *desc = lineDesc;
     bool include = true;
     if (_paint.widthFunc)

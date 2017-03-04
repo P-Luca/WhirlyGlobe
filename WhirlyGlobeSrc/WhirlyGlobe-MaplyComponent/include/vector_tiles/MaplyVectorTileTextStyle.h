@@ -23,6 +23,21 @@
 #import "MaplyVectorTileStyle.h"
 #import "MaplyVectorTileStyle.h"
 
+typedef enum {
+    TextPlacementPoint,
+    TextPlacementLine,
+    TextPlacementVertex,
+    TextPlacementInterior
+} TextSymbolizerPlacement;
+
+typedef enum {
+    TextTransformNone,
+    TextTransformUppercase,
+    TextTransformLowercase,
+    TextTransformCapitalize
+} TextSymbolizerTextTransform;
+
+
 /** @details Implementation of the text style symbolizer for Maply Vector Tiles.
  */
 @interface MaplyVectorTileStyleText : MaplyVectorTileStyle

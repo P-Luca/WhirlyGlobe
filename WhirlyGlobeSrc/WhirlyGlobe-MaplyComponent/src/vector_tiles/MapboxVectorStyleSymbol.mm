@@ -76,6 +76,8 @@
     
     _textColor = [styleSet colorValue:@"text-color" dict:styleEntry defVal:[UIColor whiteColor]];
     _textHaloColor = [styleSet colorValue:@"text-halo-color" dict:styleEntry defVal:nil];
+    _textHaloWidth = [styleSet doubleValue:@"text-halo-width" dict:styleEntry defVal:2.0];
+    
     id sizeEntry = styleEntry[@"text-size"];
     if (sizeEntry)
     {
@@ -129,7 +131,7 @@
     {
         symbolDesc[kMaplyTextOutlineColor] = _paint.textHaloColor;
         // Note: Pick this up from the spec
-        symbolDesc[kMaplyTextOutlineSize] = @(2.0);
+        symbolDesc[kMaplyTextOutlineSize] = @(_paint.textHaloWidth);
     }
     
     return self;
@@ -153,7 +155,7 @@
         desc = mutDesc;
     } else {
         // Note: Providing a reasonable default
-        UIFont *font = [UIFont systemFontOfSize:16.0];
+        UIFont *font = [UIFont systemFontOfSize:_paint.textSize];
         NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
         mutDesc[kMaplyFont] = font;
         desc = mutDesc;
@@ -188,6 +190,8 @@
                         marker.size = CGSizeMake(marker.size.width/2.0, marker.size.height/2.0);
                 } else
                     marker.size = CGSizeMake(30,30);
+                
+                marker.userObject = vecObj;
                 [markers addObject:marker];
             }
         }
@@ -201,6 +205,7 @@
             label.text = vecObj.attributes[@"name"];
         label.layoutImportance = _layout.textMaxSize;
         if (marker != nil) {
+            label.userObject = vecObj;
             label.offset = CGPointMake(marker.size.width/3, marker.size.height/2*-1);
         }
         label.layoutPlacement = kMaplyLayoutCenter | kMaplyLayoutRight | kMaplyLayoutLeft | kMaplyLayoutAbove | kMaplyLayoutBelow;
